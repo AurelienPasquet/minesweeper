@@ -1,10 +1,8 @@
-## Minesweeper Game
+# Minesweeper Game
 
 This is a classic Minesweeper game developed using Python and Pygame, allowing customizable grid dimensions and bomb count.
 
----
-
-### Requirements
+## Requirements
 
     Python 3.x
     Pygame library
@@ -14,9 +12,7 @@ To install Pygame, use:
 pip install pygame
 ```
 
----
-
-### Installation
+## Installation
 
 Clone or download this repository.
 
@@ -26,9 +22,7 @@ git clone https://github.com/AurelienPasquet/minesweeper.git
 git clone git@github.com:AurelienPasquet/minesweeper.git
 ```
 
----
-
-### Running the Game
+## Running the Game
 
 Enter the game reposirory:
 
@@ -41,27 +35,21 @@ Run the main file with optional arguments for grid size and bomb count:
 ```bash
 python src/main.py <width> <height> [num_bombs]
 ```
-- **width**: Number of tiles along the horizontal axis (default: 30).
-- **height**: Number of tiles along the vertical axis (default: 16).
-- **num_bombs**: Total bombs on the grid (default: 99).
+- **width** - Number of tiles along the horizontal axis (default: 30).
+- **height** - Number of tiles along the vertical axis (default: 16).
+- **num_bombs** - Total bombs on the grid (default: 99).
 
----
-
-### Example:
+## Example:
 
 ```bash
 python src/main.py 10 10 20
 ```
 
----
+## Additional Controls
 
-### Additional Controls
+- **q** - Quit the game.
+- **r** - Restart the game.
 
-- **q**: Quit the game.
-- **r**: Restart.
-
----
-
-### Credits
+## Credits
 
 The sprites used in this project were created by [RockPaperKatana](https://www.spriters-resource.com/submitter/RockPaperKatana/). The sheet can be found [here](https://www.spriters-resource.com/custom_edited/minesweepercustoms/sheet/180218/).
