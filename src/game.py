@@ -5,9 +5,36 @@ from tile import *
 
 
 class MineSweeper():
+    """
+    Class representing the MineSweeper game logic and display.
 
+    Attributes:
+        width (int): Width of the grid.
+        height (int): Height of the grid.
+        num_bombs (int): Number of bombs to be placed on the grid.
+        display_info (dict): Information for displaying the game.
+        over (bool): Indicates if the game is over.
+        reveal (bool): Controls tile revealing behavior.
+        graphic_grid (list): Stores display state of each cell.
+        logic_grid (list): Stores bomb and number placements.
+        bomb_positions (set): Set of bomb positions on the grid.
+        flag_positions (list): Tracks flagged positions.
+        hidden_positions (list): Stores hidden cell positions.
+        single_press (tuple): Coordinates of a single pressed tile.
+        pressed_positions (list): Positions to reveal after pressing.
+    """
+    
     def __init__(self, width, height, num_bombs, display_info):
+        """
+        Initialize the MineSweeper game with the given grid size and bomb count.
 
+        Args:
+            width (int): Width of the grid.
+            height (int): Height of the grid.
+            num_bombs (int): Number of bombs to place.
+            display_info (dict): Display configuration including screen and images.
+        """
+        
         self.width = width
         self.height = height
         self.num_bombs = num_bombs
@@ -15,13 +42,11 @@ class MineSweeper():
         self.over = False
         self.reveal = True
 
-        # Init graphic grid
+        # Initialize graphical and logical grids
         self.graphic_grid = [[HIDDEN for _ in range(width)] for _ in range(height)]
-
-        # Init logic grid
         self.logic_grid = [[EMPTY for _ in range(width)] for _ in range(height)]
 
-        # Place bombs on logic grid
+        # Place bombs and calculate adjacent numbers
         self.bomb_positions = set(random.sample(
             [(i, j) for i in range(height) for j in range(width)], num_bombs))
         for i, j in self.bomb_positions:
@@ -60,26 +85,45 @@ class MineSweeper():
                 self.logic_grid[i][j] = counter
 
         self.flag_positions = []
-
         self.hidden_positions = [(i, j)
                                  for i in range(height) for j in range(width)]
-
         self.single_press = None
-        
         self.pressed_positions = []
 
     def __is_valid(self, i, j):
+        """
+        Check if given coordinates are within grid boundaries.
+
+        Args:
+            i (int): Row index.
+            j (int): Column index.
+
+        Returns:
+            bool: True if coordinates are within the grid, False otherwise.
+        """
+        
         return 0 <= i < self.height and 0 <= j < self.width
 
     def __get_valid_neighbours(self, i, j):
+        """
+        Get list of valid neighboring cells for a given cell.
+
+        Args:
+            i (int): Row index.
+            j (int): Column index.
+
+        Returns:
+            list: List of neighboring cells within grid boundaries.
+        """
+        
         neighbouring_pos = [
-            (i-1, j),   # Top
+            (i-1, j),    # Top
             (i-1, j+1),  # Top Right
-            (i, j+1),   # Right
+            (i, j+1),    # Right
             (i+1, j+1),  # Bottom Right
-            (i+1, j),   # Bottom
+            (i+1, j),    # Bottom
             (i+1, j-1),  # Bottom Left
-            (i, j-1),   # Left
+            (i, j-1),    # Left
             (i-1, j-1),  # Top Left
         ]
         neighbours = []
@@ -89,12 +133,36 @@ class MineSweeper():
         return neighbours
 
     def restart(self):
+        """
+        Restart the game with the same parameters.
+        """
+        
         self.__init__(self.width, self.height, self.num_bombs, self.display_info)
 
     def get(self, i, j):
+        """
+        Get the graphical representation of a cell.
+
+        Args:
+            i (int): Row index.
+            j (int): Column index.
+
+        Returns:
+            int: The state of the cell on the graphical grid.
+        """
+        
         return self.graphic_grid[i][j]
 
     def set(self, i, j, val):
+        """
+        Set the graphical representation of a cell.
+
+        Args:
+            i (int): Row index.
+            j (int): Column index.
+            val (int): Value to set the cell to.
+        """
+        
         if val == FLAG:
             self.flag_positions.append((i, j))
         elif val == HIDDEN:
@@ -106,13 +174,24 @@ class MineSweeper():
         
         self.graphic_grid[i][j] = val
 
-    # Change graphic grid
     def reveal_tile(self, i, j):
+        """
+        Reveal the selected tile on the grid.
+
+        Args:
+            i (int): Row index.
+            j (int): Column index.
+        """
+        
         self.set(i, j, self.logic_grid[i][j])
         if self.get(i, j) == BOMB:
             self.lost_grid(i, j)
 
     def check_single_press(self):
+        """
+        Reveal a single pressed tile.
+        """
+        
         if self.single_press:
             i, j = self.single_press
             self.reveal_tile(i, j)
@@ -121,8 +200,14 @@ class MineSweeper():
             self.single_press = None
 
     def empty_patch(self, i, j):
+        """
+        Reveal connected empty tiles (no adjacent bombs) using BFS.
 
-        # Get empty tiles patch with BFS
+        Args:
+            i (int): Row index of the initial empty cell.
+            j (int): Column index of the initial empty cell.
+        """
+        
         queue = [(i, j)]
         visited = [(i, j)]
         other = []
@@ -142,9 +227,15 @@ class MineSweeper():
         for (i, j) in visited + other:
             self.set(i, j, self.logic_grid[i][j])
 
-    # True -> Over, False -> Ok
     def pressed_neighbours(self, i, j):
-        # Get neighbours
+        """
+        Reveal neighboring cells based on the number of adjacent flags.
+
+        Args:
+            i (int): Row index of the pressed cell.
+            j (int): Column index of the pressed cell.
+        """
+        
         neighbours = self.__get_valid_neighbours(i, j)
         to_delete = []
         for k, l in neighbours:
@@ -187,6 +278,10 @@ class MineSweeper():
                 self.empty_patch(k, l)
 
     def reveal_pressed_neighours(self):
+        """
+        Reveal pressed neighboring cells.
+        """
+        
         if self.pressed_positions:
             for i, j in self.pressed_positions:
                 if self.reveal:
@@ -198,8 +293,14 @@ class MineSweeper():
         self.pressed_positions = []
         self.reveal = True
     
-    # Display lose grid
     def lost_grid(self, i, j):
+        """
+        Display the game grid when player loses.
+
+        Args:
+            i (int): Row index of the clicked bomb.
+            j (int): Column index of the clicked bomb.
+        """
 
         self.over = True
         
@@ -220,17 +321,32 @@ class MineSweeper():
         self.update_display() 
         
     def update_display(self):
+        """
+        Update display to reflect the current game state.
+        """
+        
         for i in range(self.height):
             for j in range(self.width):
                 self.display_info["screen"].blit(self.display_info["images"][self.get(i, j)], (j*self.display_info["tile_size"], i*self.display_info["tile_size"]))
         pygame.display.flip()
     
     def auto_finish(self):
+        """
+        Automatically finish the game if only bombs are left hidden.
+        """
+        
         if set(self.hidden_positions).issubset(set(self.bomb_positions)):
             for i, j in self.hidden_positions:
                 self.set(i, j, FLAG)
 
     def check_win(self):
+        """
+        Check if all non-bomb tiles are revealed (win condition).
+
+        Returns:
+            bool: True if all non-bomb tiles are revealed, False otherwise.
+        """
+        
         for i in range(self.height):
             for j in range(self.width):
                 if self.get(i, j) == HIDDEN:
